@@ -1,0 +1,10 @@
+# OPTIONAL - append to the existing /api/lcr/.htaccess (do not replace it). Only affects nas_proxy* files.
+# Lets PHP see the Authorization header on Apache/CentOS (the proxy also accepts X-NAS-User-Token, so this is a safety net).
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP:Authorization} .
+RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+<FilesMatch "^nas_proxy_config(\.sample)?\.php$">
+    Require all denied
+</FilesMatch>
