@@ -1,22 +1,7 @@
 <?php
 /**
  * nas_proxy.php - PMES reverse proxy (CentOS / sakatamalaybalay.com/api/lcr/)
- * ---------------------------------------------------------------------------------
- * Frontend (Firebase etc.)  ->  THIS FILE  ->  NAS nas_db_config.php  ->  the database chosen by the NAS
- *
- *  - NO database config here. The NAS keeps the list of DB profiles and decides which one each frontend gets.
- *  - Dynamic CORS: allowed origins come from the NAS (config/nas_db_config_apps.json) via a signed call, cached
- *    CORS_CACHE_TTL seconds. Add a frontend on the NAS and it works here within minutes. No edit on this host.
- *  - Only 2 secrets live here: NAS_PROXY_CHANNEL_KEY and NAS_PROXY_CHANNEL_HMAC_SECRET (put them in
- *    nas_proxy_config.php next to this file, so this file can be replaced without losing settings).
- *  - Browser usage:  POST https://sakatamalaybalay.com/api/lcr/nas_proxy.php
- *        Headers: Content-Type: application/json, X-App-Id: pmes  (browsers)  or  Client-Token: <token>  (server-side clients),
- *                 [Authorization: Bearer <user token>]
- *        Body:    {"database":"PMES_DB","action":"list","table":"projects","page":1}
- *  - Health: GET nas_proxy.php?op=health
- *
- * PHP 7.4+, cURL only. Does not touch ccror.php or any other file.
- */
+
 
 if (is_file(__DIR__ . '/nas_proxy_config.php')) {
     require __DIR__ . '/nas_proxy_config.php';
