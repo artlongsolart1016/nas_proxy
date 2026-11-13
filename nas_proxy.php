@@ -10,7 +10,6 @@ function nas_proxy_def($k, $v) { if (!defined($k)) { define($k, $v); } }
 
 // ---- settings (override any of these in nas_proxy_config.php) ----------------------------
 nas_proxy_def('NAS_PROXY_URL_PRIMARY',   'http://192.168.108.44/lcr/1NAS_api/nas_db_config.php');           // LAN, tried first
-nas_proxy_def('NAS_PROXY_URL_FALLBACK',  'https://continued-adrian-whom-vatican.trycloudflare.com/1NAS_api/nas_db_config.php');  // Cloudflare Tunnel from NAS, used if LAN is unreachable
 nas_proxy_def('NAS_PROXY_CHANNEL_KEY',         'CHANGE_ME');
 nas_proxy_def('NAS_PROXY_CHANNEL_HMAC_SECRET', 'CHANGE_ME');
 nas_proxy_def('NAS_PROXY_BOOTSTRAP_ORIGINS', []);        // used ONLY if the NAS has never been reachable (no cache yet), e.g. ['https://pmes-xxxx.web.app']
