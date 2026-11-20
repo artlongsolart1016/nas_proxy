@@ -1,10 +1,9 @@
-# OPTIONAL - append to the existing /api/lcr/.htaccess (do not replace it). Only affects nas_proxy* files.
-# Lets PHP see the Authorization header on Apache/CentOS (the proxy also accepts X-NAS-User-Token, so this is a safety net).
+# Apache / LiteSpeed configuration for PMES Reverse Proxy
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteCond %{HTTP:Authorization} .
 RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 </IfModule>
-<FilesMatch "^nas_proxy_config(\.sample)?\.php$">
+<FilesMatch "^nas_proxy_config(\.example|\.sample)?\.php$">
     Require all denied
 </FilesMatch>
