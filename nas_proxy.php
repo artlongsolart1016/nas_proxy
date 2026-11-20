@@ -19,7 +19,46 @@ $configPath = __DIR__ . '/nas_proxy_config.php';
 if (!is_file($configPath)) {
     $configPath = __DIR__ . '/nas_proxy_config.example.php';
 }
-$config = require $configPath;
+$config = is_file($configPath) ? require $configPath : [];
+
+// Robustness: If config file only defined constants or did not return an array
+if (!is_array($config)) {
+    $config = [];
+}
+if (!isset($config['shared_hmac_secret']) && defined('NAS_PROXY_CHANNEL_HMAC_SECRET')) {
+    $config['shared_hmac_secret'] = constant('NAS_PROXY_CHANNEL_HMAC_SECRET');
+}
+if (!isset($config['lan_upstream_url']) && defined('NAS_PROXY_URL_PRIMARY')) {
+    $config['lan_upstream_url'] = constant('NAS_PROXY_URL_PRIMARY');
+}
+if (!isset($config['routes']) || !is_array($config['routes'])) {
+    $config['routes'] = [
+        'api'    => ['methods' => ['POST'], 'max_body_bytes' => 26214400, 'timeout_sec' => 60, 'rate_limit_per_min' => 120],
+        'health' => ['methods' => ['GET', 'POST'], 'max_body_bytes' => 65536, 'timeout_sec' => 10, 'rate_limit_per_min' => 60],
+        'sync'   => ['methods' => ['POST'], 'max_body_bytes' => 104857600, 'timeout_sec' => 180, 'rate_limit_per_min' => 30],
+        'report' => ['methods' => ['POST'], 'max_body_bytes' => 1048576, 'timeout_sec' => 300, 'rate_limit_per_min' => 20],
+        'file'   => ['methods' => ['POST'], 'max_body_bytes' => 1048576, 'timeout_sec' => 60, 'rate_limit_per_min' => 60],
+    ];
+}
+if (!isset($config['allowed_origins'])) {
+    $config['allowed_origins'] = [
+        'https://epmes.ccromalaybalaybuk.workers.dev',
+        'https://pmesmlybly.ai.studio',
+        'https://sakatamalaybalay.com',
+        'https://www.sakatamalaybalay.com',
+        'http://localhost:3000',
+        'http://localhost:5173',
+    ];
+}
+if (!isset($config['allowed_origin_suffixes'])) {
+    $config['allowed_origin_suffixes'] = ['.workers.dev'];
+}
+if (!isset($config['upstream_mode'])) {
+    $config['upstream_mode'] = 'lan_only';
+}
+if (!isset($config['verify_tls'])) {
+    $config['verify_tls'] = false;
+}
 
 $requestId = bin2hex(random_bytes(8));
 
@@ -93,10 +132,13 @@ $routeCfg = $routes[$op];
 // ============================================================================
 $origin = trim((string)($_SERVER['HTTP_ORIGIN'] ?? ''));
 $allowedOrigins = $config['allowed_origins'] ?? [];
+$allowAllOrigins = !empty($config['allow_all_origins']) || in_array('*', $allowedOrigins, true);
 $isOriginAllowed = false;
 
 if ($origin !== '') {
-    if (in_array($origin, $allowedOrigins, true)) {
+    if ($allowAllOrigins) {
+        $isOriginAllowed = true;
+    } elseif (in_array($origin, $allowedOrigins, true)) {
         $isOriginAllowed = true;
     } else {
         $parsedHost = strtolower((string)(parse_url($origin, PHP_URL_HOST) ?? ''));
